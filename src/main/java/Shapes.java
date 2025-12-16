@@ -1,3 +1,4 @@
+import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.Camera3D;
@@ -6,13 +7,17 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.components.TransformComponent;
 import com.almasb.fxgl.scene3d.Prism;
 import com.almasb.fxgl.scene3d.Torus;
+import javafx.geometry.Point3D;
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
+import javafx.util.Duration;
 
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameScene;
+import static com.almasb.fxgl.dsl.FXGL.onKey;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class Shapes extends GameApplication {
 
@@ -28,7 +33,14 @@ public class Shapes extends GameApplication {
 
     @Override
     protected void initInput() {
-        super.initInput();
+        onKey(KeyCode.W, () -> camera.moveForward());
+        onKey(KeyCode.S, () -> camera.moveBack());
+        onKey(KeyCode.D, () -> camera.moveRight());
+        onKey(KeyCode.A, () -> camera.moveLeft());
+
+        onKey(KeyCode.L, () -> getGameController().exit());
+
+        onKey(KeyCode.F, () -> {});
     }
 
     @Override
@@ -49,6 +61,28 @@ public class Shapes extends GameApplication {
         for (Node shape : shapes) {
             Entity e = makeEntity(x*2-8,0,6);
             e.getViewComponent().addChild(shape);
+
+            animationBuilder()
+                    .interpolator(Interpolators.SMOOTH.EASE_OUT())
+                    .delay(Duration.seconds(x * 0.5))
+                    .repeatInfinitely()
+                    .autoReverse(true)
+                    .translate(e)
+                    .from(e.getPosition3D())
+                    .to(e.getPosition3D().add(0, -2, 0))
+                    .buildAndPlay();
+
+            animationBuilder()
+                    //.interpolator(Interpolators.EXPONENTIAL.EASE_OUT())
+                    .duration(Duration.seconds(2.0))
+                    .delay(Duration.seconds(x * 0.5))
+                    .repeatInfinitely()
+                    .autoReverse(true)
+                    .rotate(e)
+                    .from(new Point3D(0, 0, 0))
+                    .to(new Point3D(360, 0, 0))
+                    .buildAndPlay();
+
             x++;
         }
     }
